@@ -1,7 +1,9 @@
 package edu.hm.dako.chat.common;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
@@ -58,9 +60,34 @@ public class AuditLogPDU implements Serializable {
 				+ "\n";
 	}
 
-	public static void printPdu(AuditLogPDU pdu) {
-		// System.out.println(pdu);
-		log.debug(pdu);
+	//HABEN WIR HINZUGEFUEGT.....
+
+	public String auditLogInfo(String connectionType) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Connection Type: ");
+		sb.append(connectionType);
+		sb.append(" | ");
+		sb.append(new Date(this.auditTime));
+		sb.append(" | ");
+		sb.append(pduType);
+		sb.append(" | ");
+		sb.append(serverThreadName);
+		sb.append(" | ");
+		sb.append(clientThreadName);
+		sb.append(" | ");
+		sb.append(userName);
+		sb.append(" | ");
+		sb.append(message + "\n");
+		return sb.toString();
+	}
+
+	private String convertTimeWithTimeZone(long time){
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("CET"));
+		cal.setTimeInMillis(time);
+		return (cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1) + "-"
+				+ cal.get(Calendar.DAY_OF_MONTH) + "___" + cal.get(Calendar.HOUR_OF_DAY) + ":"
+				+ cal.get(Calendar.MINUTE));
 	}
 
 	public void setPduType(AuditLogPduType pduType) {

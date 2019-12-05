@@ -460,6 +460,7 @@ public class ChatServerGUI extends Application implements ChatServerGuiInterface
 			public void handle(ActionEvent event) {
 
 				try {
+					int auditLogImplType = readAuditLogComboBox().equals("TCP") ? 1 : 2;
 					chatServer.stop();
 				} catch (Exception e) {
 					log.error("Fehler beim Stoppen des Chat-Servers");
