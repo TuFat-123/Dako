@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import edu.hm.dako.chat.common.AuditLogImplementationType;
+import edu.hm.dako.chat.common.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.*;
@@ -13,9 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
 
-import edu.hm.dako.chat.common.ExceptionHandler;
-import edu.hm.dako.chat.common.ImplementationType;
-import edu.hm.dako.chat.common.SystemConstants;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -461,6 +458,11 @@ public class ChatServerGUI extends Application implements ChatServerGuiInterface
 
 				try {
 					int auditLogImplType = readAuditLogComboBox().equals("TCP") ? 1 : 2;
+					if (ServerFactory.isAuditLogServerConnected()) {
+						ServerFactory.auditLogConnection.send(new ChatPDU(), AuditLogPduType.FINISH_AUDIT_REQUEST);
+						Thread.sleep(1000);
+						ServerFactory.auditLogConnection.close();
+					}
 					chatServer.stop();
 				} catch (Exception e) {
 					log.error("Fehler beim Stoppen des Chat-Servers");
@@ -490,6 +492,11 @@ public class ChatServerGUI extends Application implements ChatServerGuiInterface
 			@Override
 			public void handle(ActionEvent event) {
 				try {
+					if (ServerFactory.isAuditLogServerConnected()) {
+						ServerFactory.auditLogConnection.send(new ChatPDU(), AuditLogPduType.FINISH_AUDIT_REQUEST);
+						Thread.sleep(1000);
+						ServerFactory.auditLogConnection.close();
+					}
 					ChatServerGUI.chatServer.stop();
 				} catch (Exception var3) {
 					ChatServerGUI.log.error("Fehler beim Stoppen des Chat-Servers");

@@ -1,92 +1,69 @@
 package edu.hm.dako.chat.AuditLogServer;
 
+import edu.hm.dako.chat.common.SystemConstants;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-import edu.hm.dako.chat.common.AuditLogPDU;
-import edu.hm.dako.chat.connection.ServerSocketInterface;
-import edu.hm.dako.chat.tcp.TcpConnection;
-import edu.hm.dako.chat.tcp.TcpServerSocket;
-import org.apache.log4j.Logger;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.IOException;
+public class ButtonTest extends Application {
+   private Button stopStart;
+   private AbstractAuditLogServer auditLogServer;
+   private ComboBox<String> auditLogImplType;
+   private ObservableList<String> implTypeOptions = FXCollections.observableArrayList(
+           SystemConstants.AUDIT_LOG_SERVER_TCP_IMPL, SystemConstants.AUDIT_LOG_SERVER_UDP_IMPL);
 
-public class ButtonTest extends JFrame implements ActionListener {
 
-    private JButton button;
-    private JButton button2;
+   public void start(Stage primary) {
+       GridPane panel = new GridPane();
+       stopStart = new Button("Start");
+       auditLogImplType = new ComboBox<>(implTypeOptions);
+       auditLogImplType.setValue(implTypeOptions.get(0));
 
-    ServerSocketInterface socket;
-    TcpConnection connection;
+       stopStart.setOnAction(event -> {
+           if (auditLogServer != null) {
+               auditLogServer.stop();
+               auditLogServer = null;
+               stopStart.setText("Stop");
+               return;
+           }
 
-    private static Logger log = Logger.getLogger(AuditLogTcpServer.class);
+           String implType = auditLogImplType.getValue();
+           if (implType.equals("TCP")) {
+               auditLogServer = new AuditLogTcpServer();
+           } else if (implType.equals("UDP")) {
+               auditLogServer = new AuditLogUdpServer();
+           }
+           new ServerThread().start();
+           stopStart.setText("Stop");
+       });
 
-    // Serverport fuer AuditLog-Service
-    private static final int AUDIT_LOG_SERVER_PORT = 40001;
 
-    // Standard-Puffergroessen fuer Serverport in Bytes
-    private static final int DEFAULT_SENDBUFFER_SIZE = 30000;
-    private static final int DEFAULT_RECEIVEBUFFER_SIZE = 800000;
+       panel.add(stopStart, 2, 2);
+       panel.add(auditLogImplType, 2, 1);
 
-    // Name der AuditLog-Datei
-    private static final String auditLogFile = new String("ChatAuditLogTCP.dat");
+       Scene scene = new Scene(panel);
+       primary.setScene(scene);
+       primary.show();
 
-    // Zaehler fuer ankommende AuditLog-PDUs
-    protected static long counter = 0;
+   }
 
-    FileWriter writer;
-    AuditLogPDU pdu;
-
-    public ButtonTest() throws Exception {
-        button = new JButton("Beenden");
-        button2 = new JButton("Starten");
-        button.addActionListener(this);
-        button2.addActionListener(this);
-        this.getContentPane().add(button2);
-        this.getContentPane().add(button);
+    public static void main(String[] args) {
+        launch(args);
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == button) {
-            try {
-                writer.close();
-                connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        } else if (e.getSource() == button2) {
-            try {
-                init();
-                startServer();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
+   class ServerThread extends Thread {
+       public void run() {
+           auditLogServer.start();
+           stopStart.setText("Start");
+           auditLogServer = null;
+       }
 
-    public void init() throws Exception{
-        socket = new TcpServerSocket(AUDIT_LOG_SERVER_PORT, DEFAULT_SENDBUFFER_SIZE, DEFAULT_RECEIVEBUFFER_SIZE);
-        connection = (TcpConnection) socket.accept();
-        writer = new FileWriter(auditLogFile);
-    }
-
-    public void startServer() throws Exception {
-        while (true) {
-            pdu = (AuditLogPDU) connection.receive();
-            System.out.println("Nachricht erhalten: " + pdu.auditLogInfo("TCP"));
-            writer.write(pdu.auditLogInfo("TCP"));
-            counter++;
-            writer.flush();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        ButtonTest test = new ButtonTest();
-        test.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        test.setSize(400,400);
-        test.setVisible(true);
-    }
+   }
 }

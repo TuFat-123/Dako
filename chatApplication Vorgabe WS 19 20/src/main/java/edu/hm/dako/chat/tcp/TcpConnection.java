@@ -1,9 +1,6 @@
 package edu.hm.dako.chat.tcp;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -183,5 +180,13 @@ public class TcpConnection implements Connection {
 			log.debug(e.getMessage());
 			throw new IOException(new IOException());
 		}
+	}
+
+	public OutputStream getOutputStream () {
+		return this.out;
+	}
+
+	public InputStream getInputStream () {
+		return this.in;
 	}
 }
