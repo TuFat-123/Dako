@@ -12,7 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 
-public class ButtonTest extends Application {
+public class AuditLogServerGUI extends Application {
    private Button stopStart;
    private AbstractAuditLogServer auditLogServer;
    private ComboBox<String> auditLogImplType;
