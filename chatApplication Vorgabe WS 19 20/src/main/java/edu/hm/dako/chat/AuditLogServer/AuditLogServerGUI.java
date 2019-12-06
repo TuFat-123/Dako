@@ -2,7 +2,6 @@ package edu.hm.dako.chat.AuditLogServer;
 
 import edu.hm.dako.chat.common.SystemConstants;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
