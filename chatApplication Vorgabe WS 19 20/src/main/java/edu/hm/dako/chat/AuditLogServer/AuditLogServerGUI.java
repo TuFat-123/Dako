@@ -10,14 +10,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-
 public class AuditLogServerGUI extends Application {
    private Button stopStart;
    private AbstractAuditLogServer auditLogServer;
    private ComboBox<String> auditLogImplType;
    private ObservableList<String> implTypeOptions = FXCollections.observableArrayList(
            SystemConstants.AUDIT_LOG_SERVER_TCP_IMPL, SystemConstants.AUDIT_LOG_SERVER_UDP_IMPL);
-
 
    public void start(Stage primary) {
        GridPane panel = new GridPane();
@@ -28,8 +26,6 @@ public class AuditLogServerGUI extends Application {
        stopStart.setOnAction(event -> {
            if (auditLogServer != null) {
                auditLogServer.stop();
-               auditLogServer = null;
-               stopStart.setText("Stop");
                return;
            }
 

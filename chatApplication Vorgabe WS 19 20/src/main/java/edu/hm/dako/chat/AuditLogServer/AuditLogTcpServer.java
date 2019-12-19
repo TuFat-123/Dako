@@ -39,6 +39,7 @@ public class AuditLogTcpServer extends AbstractAuditLogServer {
 			while (keepGoing) {
 				AuditLogPDU pdu = (AuditLogPDU) connection.receive();
 				writer.write(pdu.auditLogInfo("TCP"));
+				log.info("Nachricht erhalten: " + pdu.auditLogInfo("UDP"));
 				counter++;
 				writer.flush();
 				if (pdu.getPduType().equals(AuditLogPduType.FINISH_AUDIT_REQUEST)) {
